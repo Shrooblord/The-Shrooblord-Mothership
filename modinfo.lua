@@ -9,7 +9,7 @@ meta =
     version = "1.1.0",
 
     dependencies = {
-        {id = "Avorion", min = "0.26"},
+        {id = "Avorion", min = "0.26", max = "0.26.1"},
     },
 
     serverSideOnly = false,
