@@ -41,14 +41,31 @@ function prt(strIn, isError, modID, fromScript, fromFunc, override)
 end
 callable(nil, "prt")
 
---See prt(); additionally:
---dbgLevel      : if the dbgLevel for this debug message < the dbgLevel set in config, this message will "silently fail" to print, i.e. dbgLevel in config hides debug messages of higher order
-function prtDbg(strIn, isError, modID, dbgLevel, fromScript, fromFunc, override)
-    if onClient() then
-        invokeServerFunction("prtDbg", strIn, isError, modID, dbgLevel, fromScript, fromFunc, override)
-        return false
+--see prt(); additionally:
+--This function only runs on the Client. Doesn't include calls to onServer() only objects like Sector(), and should only be called from Client-only functions (such as UI code)
+function prtClient(strIn, isError, modID, fromScript, fromFunc, override)
+    local ent
+
+    if override then
+        ent = {}
+        ent.translatedTitle = override
+        ent.name = ""
+    else
+        ent = Entity()            
     end
 
+    local label = ""
+    if isError == 1 then
+        label = "[ERROR]"
+    end
+
+    print("["..modID.."]"..label.." <"..tostring(ent.translatedTitle).." "..tostring(ent.name)..">:["..fromScript.."]->"..fromFunc..":"..strIn)
+end
+
+--See prt(); additionally:
+--dbgLevel      : if the dbgLevel for this debug message < the dbgLevel set in config, this message will "silently fail" to print, i.e. dbgLevel in config hides debug messages of higher order
+--isClient      : whether this is a print that should use onServer() functionality like Sector(), or whether it would fail if we call this onServer(), such as calling it from a Client-only function
+function prtDbg(strIn, isError, modID, dbgLevel, fromScript, fromFunc, override, isClient)
     if sMConf[0].override == true then
         if sMConf[0].dbgLevel >= dbgLevel then
             prt(strIn, isError, modID, fromScript, fromFunc, override)
@@ -57,15 +74,29 @@ function prtDbg(strIn, isError, modID, dbgLevel, fromScript, fromFunc, override)
         for i=0, #sMConf do
             if sMConf[i].modID == modID then
                 if sMConf[i].dbgLevel >= dbgLevel then
-                    prt(strIn, isError, modID, fromScript, fromFunc, override)
+                    if isClient then
+                        prtClient(strIn, isError, modID, fromScript, fromFunc, override)
+                    else
+                        prt(strIn, isError, modID, fromScript, fromFunc, override)
+                    end
                 end
                 goto done
             end
         end
 
         local err = "Mod not found in config list! This is a mod installation error. Please make sure all dependencies are met, and contact Shrooblord if this problem persists."%_t
-        prt(err, 1, modID, fromScript, fromFunc, override)
+        
+        if isClient then
+            prtClient(err, 1, modID, fromScript, fromFunc, override)
+        else
+            prt(err, 1, modID, fromScript, fromFunc, override)
+        end
     end
     ::done::
 end
 callable(nil, "prtDbg")
+
+--See prtDbg(); additionally:
+function prtDbgClient(strIn, isError, modID, dbgLevel, fromScript, fromFunc, override)
+    prtDbg(strIn, isError, modID, dbgLevel, fromScript, fromFunc, override, true)
+end
