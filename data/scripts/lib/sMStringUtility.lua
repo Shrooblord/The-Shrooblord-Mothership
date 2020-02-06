@@ -14,7 +14,7 @@ function stringEndsWith(str, ending)
 --replaces the input string <str> with a version that is capitalised.
 --[firsWordOnly] if only the start of <str> should be capitalised.
 --[ignoreSingleLetters] if single-lettered words (like "a") should not be capitalised.
- function stringCapitalise(str, firstWordOnly, singleLetters)
+ function stringCapitalise(str, firstWordOnly, ignoreSingleLetters)
     if firstWordOnly then
         return str:gsub("^%l", string.upper)
     end
