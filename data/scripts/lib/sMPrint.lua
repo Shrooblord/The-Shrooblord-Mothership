@@ -3,6 +3,7 @@
 
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
+package.path = package.path .. ";data/scripts/config/?.lua"
 
 include("callable")
 include("sMFormat")
