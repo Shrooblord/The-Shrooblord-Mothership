@@ -6,10 +6,10 @@ meta =
     title = "The Shrooblord Mothership",
     description = "Library mod for common functionality between Shrooblord's mods.",
     authors = {"Shrooblord"},
-    version = "1.1.1",
+    version = "1.1.2",
 
     dependencies = {
-        {id = "Avorion", min = "0.26", max = "0.29"},
+        {id = "Avorion", min = "0.26", max = "0.31.*"},
     },
 
     serverSideOnly = false,
