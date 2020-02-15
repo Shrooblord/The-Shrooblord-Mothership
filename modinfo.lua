@@ -7,9 +7,9 @@ meta =
     description = "Library mod for common functionality between Shrooblord's mods.",
     authors = {"Shrooblord"},
 
-    version = "1.1.2",
+    version = "1.1.3",
     dependencies = {
-        {id = "Avorion", min = "0.26", max = "0.31.*"},
+        {id = "Avorion", min = "0.26", max = "0.32.*"},
     },
 
     serverSideOnly = false,
