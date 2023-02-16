@@ -1,4 +1,4 @@
---The Shrooblord Mothership (C) 2019 Shrooblord
+--The Shrooblord Mothership (C) 2019-2020 Shrooblord
 --Library module that contains essential print functions, such as extended log printing, debug strings, error messages, and prints to chat.
 
 package.path = package.path .. ";data/scripts/lib/?.lua"
@@ -6,6 +6,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 package.path = package.path .. ";data/scripts/config/?.lua"
 
 include("callable")
+include ("faction")
 include("sMFormat")
 local sMConf = include("sMConf")
 
@@ -32,13 +33,21 @@ function prt(strIn, isError, modID, fromScript, fromFunc, override)
     end
 
     local label = ""
-    if isError == 1 then
+    if isError then
         label = "[ERROR]"
     end
 
     local x,y = Sector():getCoordinates()
     local coords = padCoords(x, y)
-    print("["..modID.."]"..label.." <"..tostring(ent.translatedTitle).." "..tostring(ent.name)..">:["..fromScript.."]->"..fromFunc.." "..coords..":"..strIn)
+
+    local fullString = "["..modID.."]"..label.." <"..tostring(ent.translatedTitle).." "..tostring(ent.name).."> "..coords..":["..fromScript.."]->"..fromFunc..":"..strIn
+    
+    if isError then
+        eprint(fullString) --let them stand out a bit more
+    else
+        print(fullString)
+    end
+    
 end
 callable(nil, "prt")
 
@@ -100,4 +109,48 @@ callable(nil, "prtDbg")
 --See prtDbg(); additionally:
 function prtDbgClient(strIn, isError, modID, dbgLevel, fromScript, fromFunc, override)
     prtDbg(strIn, isError, modID, dbgLevel, fromScript, fromFunc, override, true)
+end
+
+function talkChat(talkStr)
+    local e = Entity()
+    
+    Sector():broadcastChatMessage(e.translatedTitle.." "..e.name, 4, talkStr%_t)
+end
+
+function sendPlayerError(errMsg, chatMsg)
+    local _, _, player = getInteractingFaction(callingPlayer)
+    
+    local e = Entity()
+    
+    player:sendChatMessage(e.title, 1, errMsg)
+    
+    if chatMsg then
+        player:sendChatMessage(e.translatedTitle.." "..e.name, 4, chatMsg)
+    end
+end
+
+--Print tables
+function prtTable(tbl, prefix)
+    prefix = prefix or ""
+    
+    for k, v in pairs(tbl) do
+        print(prefix .. "k: " .. tostring(k) .. "; v: " .. tostring(v))
+
+        if type(v) == "table" then
+            prtTable(v, prefix .. "-") --add a dash for every level of recursion so we get a nice tree structure for nested tables
+        end    
+    end
+end
+
+--like prtTable but keeps the order of the table intact (cannot be used for associative arrays!)
+function prtITable(tbl, prefix)
+    prefix = prefix or ""
+    
+    for k, v in ipairs(tbl) do
+        print(prefix .. "k: " .. tostring(k) .. "; v: " .. tostring(v))
+
+        if type(v) == "table" then
+            prtTable(v, prefix .. "-") --add a dash for every level of recursion so we get a nice tree structure for nested tables
+        end    
+    end
 end
